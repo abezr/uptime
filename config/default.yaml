@@ -1,14 +1,15 @@
 mongodb:
-  server:   localhost
-  database: uptime
-  user:     root 
-  password:
-  connectionString:       # alternative to setting server, database, user and password separately
+  server:   paulo.mongohq.com
+  database: nodejitsudb4953728343
+  user:     nodejitsu
+  password: 947e3823addbcc6829939b81818e3bf5
+  connectionString:       mongodb://localhost/uptime
 
 monitor:
   name:                   origin
   apiUrl:                 'http://localhost:8082/api' # must be accessible without a proxy
   pollingInterval:        10000      # ten seconds
+  checksInBlock:          50
   timeout:                5000       # five seconds
   userAgent:              NodeUptime/3.0 (https://github.com/fzaninotto/uptime)
 

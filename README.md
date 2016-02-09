@@ -82,6 +82,7 @@ monitor:
   name:                   origin
   apiUrl:                 'http://localhost:8082/api' # must be accessible without a proxy
   pollingInterval:        10000      # ten seconds
+  checksInBlock:          50
   timeout:                5000       # five seconds
   userAgent:              NodeUptime/2.0 (https://github.com/fzaninotto/uptime)
 

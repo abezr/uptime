@@ -71,6 +71,10 @@ app.get('/checks/new', function(req, res) {
   res.render('check_new', { check: new Check(), pollerCollection: app.get('pollerCollection'), info: req.flash('info') });
 });
 
+app.get('/checks/createFew', function(req, res) {
+  res.render('check_createFew', { check: new Check(), pollerCollection: app.get('pollerCollection'), info: req.flash('info') });
+});
+
 var populateCheckFromRequest = function(checkDocument, dirtyCheck) {
   if (!dirtyCheck.url) {
     throw new Error('Missing URL parameter');
@@ -90,23 +94,31 @@ var populateCheckFromRequest = function(checkDocument, dirtyCheck) {
     }
     checkDocument.type = dirtyCheck.type;
   } else {
-    checkDocument.type = pollerCollection.guessTypeForUrl(dirtyCheck.url);
+    checkDocument.type = pollerCollection.guessTypeForUrl(dirtyCheck.url, checkDocument);
   }
   app.emit('populateCheckFromRequest', checkDocument, dirtyCheck, checkDocument.type);
 };
 
 app.post('/checks', function(req, res, next) {
-  var check = new Check();
-  try {
-    populateCheckFromRequest(check, req.body.check);
-  } catch (err) {
-    return next(err);
+  var urls = req.body.check.url;
+  if (!urls) {
+    throw new Error('Missing URL parameter');
+  } 
+  checkUrls = urls.split(",");
+  for (var i = 0; i < checkUrls.length; i++) {
+      req.body.check.url = checkUrls[i];
+      var check = new Check();
+      try {
+        populateCheckFromRequest(check, req.body.check);
+      } catch (err) {
+        return next(err);
+      }
+      check.save(function(err) {
+        if (err) return next(err);
+        req.flash('info', 'New check has been created');
+      });
   }
-  check.save(function(err) {
-    if (err) return next(err);
-    req.flash('info', 'New check has been created');
-    res.redirect(app.route + (req.body.saveandadd ? '/checks/new' : ('/checks/' + check._id + '?type=hour&date=' + Date.now())));
-  });
+  res.redirect(app.route + (req.body.saveandadd ? '/checks/new' : ('/checks/' + check._id + '?type=hour&date=' + Date.now())));
 });
 
 app.get('/checks/:id', function(req, res, next) {
